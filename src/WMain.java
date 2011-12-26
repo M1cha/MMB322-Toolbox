@@ -123,7 +123,7 @@ public class WMain {
 		this.frmMeteorittoolbox.setFont(new Font("Serif", 0, 12));
 		this.frmMeteorittoolbox.getContentPane().setBackground(Color.WHITE);
 		this.frmMeteorittoolbox.setResizable(false);
-		this.frmMeteorittoolbox.setTitle("MMB322-ToolBox Alpha2.1");
+		this.frmMeteorittoolbox.setTitle("MMB422-ToolBox Alpha 1");
 		this.frmMeteorittoolbox.setBounds(100, 100, 758, 490);
 		this.frmMeteorittoolbox.setDefaultCloseOperation(3);
 		this.frmMeteorittoolbox.getContentPane().setLayout(null);
@@ -200,7 +200,7 @@ public class WMain {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(new Color(255, 255, 255));
 		panel_1.setBounds(10, 11, 228, 211);
-		panel_1.setBorder(new TitledBorder(null, "Google-Market", 4, 2, null,
+		panel_1.setBorder(new TitledBorder(null, "Google-Apps", 4, 2, null,
 				null));
 		panelTools.add(panel_1);
 		panel_1.setLayout(null);
@@ -225,14 +225,14 @@ public class WMain {
 		this.lblMarketAccess.setBounds(66, 52, 135, 14);
 		panel_1.add(this.lblMarketAccess);
 
-		this.btnInstallMarket = new JButton("Market installieren");
+		this.btnInstallMarket = new JButton("GApps installieren");
 		this.btnInstallMarket.setFont(new Font("Dialog", 0, 12));
 		this.btnInstallMarket.setEnabled(false);
 		this.btnInstallMarket.addActionListener(this.action);
 		this.btnInstallMarket.setBounds(10, 77, 208, 23);
 		panel_1.add(this.btnInstallMarket);
 
-		this.btnUninstallMarket = new JButton("Market deinstallieren");
+		this.btnUninstallMarket = new JButton("GApps deinstallieren");
 		this.btnUninstallMarket.setFont(new Font("Dialog", 0, 12));
 		this.btnUninstallMarket.setEnabled(false);
 		this.btnUninstallMarket.addActionListener(this.action);
@@ -462,7 +462,7 @@ public class WMain {
 		mntmInfo.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				JOptionPane.showMessageDialog(null,
-						"MMB322-Toolbox Alpha2.1\r\nCopyright (C) 2011 M1cha");
+						"MMB422-Toolbox Alpha1\r\nCopyright (C) 2011 M1cha");
 			}
 		});
 		JMenuItem mntmCredits = new JMenuItem("Credits");
@@ -471,7 +471,7 @@ public class WMain {
 				JOptionPane
 						.showMessageDialog(
 								null,
-								"ADB: CLShortFuse@xda-developers.com\r\nRoot: Koush@xda-developers.com\r\nMarket: ahab@android-hilfe.de");
+								"ADB and Root: CLShortFuse from xda-developers.com\r\nGApps: Caleb Ritter from docs.google.com");
 			}
 		});
 		mnHelp.add(mntmCredits);
@@ -534,13 +534,13 @@ public class WMain {
 				// ENABLE CONTROLS
 				this.btnReload.setEnabled(true);
 				this.btnReboot.setEnabled(true);
-				this.btnHotreboot.setEnabled(true);
-				this.btnWipe.setEnabled(true);
-				this.btnRecoveryreboot.setEnabled(true);
+				this.btnHotreboot.setEnabled(false);       /* not supported */
+				this.btnWipe.setEnabled(false);            /* not supported */
+				this.btnRecoveryreboot.setEnabled(false);  /* not supported */
 				this.btnInstallMarket.setEnabled(true);
-				this.btnUninstallMarket.setEnabled(true);
-				this.btnUnlockMarket.setEnabled(true);
-				this.btnLockMarket.setEnabled(true);
+				this.btnUninstallMarket.setEnabled(false); /* not supported */
+				this.btnUnlockMarket.setEnabled(false);    /* not supported */
+				this.btnLockMarket.setEnabled(false);      /* not supported */
 				this.btnInstallSU.setEnabled(true);
 				this.btnUninstallSU.setEnabled(true);
 				this.btnInstallSuperuser.setEnabled(true);
@@ -615,16 +615,13 @@ public class WMain {
 
 	public void reloadInfos() {
 		this.txtKernelInfo.setText(this.main.getKernelInfo());
-		this.txtFWInfo.setText("Version: "
+		this.txtFWInfo.setText("Android-Version: "
 				+ this.main.getProp("ro.build.version.release")
+				+ "\r\nFirmware-Version: " + this.main.getProp("ro.build.display.id")
 				+ "\r\nErstellungsdatum: " + this.main.getProp("ro.build.date")
 				+ "\r\nModell: " + this.main.getProp("ro.product.model")
 				+ "\r\nSprache: "
-				+ this.main.getProp("ro.product.locale.language")
-				+ "\r\nRegion: "
-				+ this.main.getProp("ro.product.locale.region")
-				+ "\r\nRAM-Größe: " + this.main.getProp("ro.build.ddr.size")
-				+ "\r\nNAND-Größe: " + this.main.getProp("ro.build.nand.size"));
+				+ this.main.getProp("persist.sys.language") + "-" + this.main.getProp("persist.sys.country"));
 
 		// CMDLINE
 		this.txtCmdLine.setText(this.main.getCmdLine());
@@ -694,9 +691,9 @@ public class WMain {
 		}
 
 		// SYSTEM-CHECK
-		if (!this.main.isMMB322()) {
+		if (!this.main.isMMB422()) {
 			this.lblWarning
-					.setText("Bei dem verbundenen Gerät handelt es sich NICHT um eine MMB-322!");
+					.setText("Bei dem verbundenen Gerät handelt es sich NICHT um eine MMB-422!");
 		} else
 			this.lblWarning.setText("");
 	}
@@ -799,7 +796,7 @@ public class WMain {
 				int choise = JOptionPane
 						.showConfirmDialog(
 								null,
-								"Market wird installiert und die Box neu gestartet!\r\nWirklich fortfahren?",
+								"Die Google-Apps werden installiert!\r\nWirklich fortfahren?",
 								"Achtung!", 0, 3);
 				if (choise == 0) {
 					WMain.this.main.installMarket();

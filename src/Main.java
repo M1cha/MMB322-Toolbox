@@ -42,19 +42,10 @@ public class Main {
 
 	public int isMarketInstalled() {
 		boolean GFramework = this.adb
-				.fileExists("/system/app/GoogleServicesFramework.apk");
-		boolean GVending = this.adb.fileExists("/system/app/Vending.apk");
+				.fileExists("/system/app/Vending.apk");
 
-		if ((GFramework) && (GVending)) {
+		if ((GFramework)) {
 			return 3;
-		}
-
-		if ((GFramework) && (!GVending)) {
-			return 2;
-		}
-
-		if ((!GFramework) && (GVending)) {
-			return 1;
 		}
 
 		return 0;
@@ -67,9 +58,9 @@ public class Main {
 				.execShell("getprop ro.build.fingerprint")[1];
 
 		if ((buildDescription
-				.equals("berlin-eng 2.2 MASTER eng.wangshen.20110504.125543 test-keys"))
+				.equals("v1.0.0.r873.20111215.200218"))
 				&& (buildFingerprint
-						.equals("marvell/berlin/berlin/:2.2/MASTER/eng.wangshen.20110504.125543:eng/test-keys"))) {
+						.equals("Hi3716C/Hi3716C/Hi3716C/:2.2/FRF91/v1.0.0.r873.20111215.200218:eng/test-keys"))) {
 			return 1;
 		}
 		if ((buildDescription
@@ -82,13 +73,19 @@ public class Main {
 		return 0;
 	}
 
+	/**
+	 * 0: NOTFOUND
+	 * 1: UNKNOWN_VERSION
+	 * 2: INSTALLED
+	 * @return
+	 */
 	public int suStatus() {
-		String suInfo = this.adb.execShell("busybox md5sum /system/bin/su")[1];
-		boolean suExists = this.adb.fileExists("/system/bin/su");
+		String suInfo = this.adb.execShell("busybox md5sum /system/sbin/su")[1];
+		boolean suExists = this.adb.fileExists("/system/sbin/su");
 
 		if (suExists) {
 			String suMD5 = suInfo.split(" ")[0];
-			if (suMD5.equals("2242e03a09c72790994842db4ff45c48")) {
+			if (suMD5.equals("c4fbd6312adc20f067cfa35cd262bca7")) {
 				return 2;
 			}
 
@@ -99,13 +96,13 @@ public class Main {
 	}
 
 	public int superuserStatus() {
-		String superuserPath = this.adb.packageExists("koushikdutta.superuser");
+		String superuserPath = this.adb.packageExists("com.noshufou.android.su");
 
 		if (superuserPath != null) {
 			String superuserInfo = this.adb.execShell("busybox md5sum '"
 					+ superuserPath + "'")[1];
 			String superuserMD5 = superuserInfo.split(" ")[0];
-			if (superuserMD5.equals("621d622b037ec9177514f3e864aeca5c")) {
+			if (superuserMD5.equals("65bd72996c68f289c5fa0b81f0874127")) {
 				return 2;
 			}
 
@@ -115,12 +112,19 @@ public class Main {
 		return 0;
 	}
 
-	public boolean isMMB322() {
-		return this.adb.fileExists("/init.mv88de3010.rc");
+	public boolean isMMB422() {
+		return this.adb.fileExists("/init.godbox.rc");
 	}
 
+	public void mountSystemRW() {
+		this.adb.execShell("mount -o remount,rw,relatime -t yaffs2 /dev/block/mtdblock11 /system");
+	}
+	public void mountSystemRO() {
+		this.adb.execShell("mount -o remount,ro,relatime -t yaffs2 /dev/block/mtdblock11 /system");
+	}
+	
 	public void doReboot() {
-		this.adb.execShell("oureboot");
+		this.adb.execShell("reboot");
 	}
 
 	public void doHotReboot() {
@@ -130,7 +134,7 @@ public class Main {
 	public void doWipe() {
 		this.adb.execShell("busybox rm -R -f /cache/*");
 		this.adb.execShell("busybox rm -R -f /data/*");
-		this.adb.execShell("oureboot");
+		this.doReboot();
 	}
 
 	public void doRecoveryReboot() {
@@ -138,45 +142,51 @@ public class Main {
 	}
 
 	public void installMarket() {
-		this.adb.execShell("mount -o rw,remount /dev/block/mtdblock5 /");
+		this.mountSystemRW();
 
-		String[] command = { "push", "lib/market", "/system" };
+		String[] command = { "push", "lib/market/system", "/system/" };
 		this.adb.exec(command);
 
-		this.adb.execShell("chmod 4755 /system/app/GoogleServicesFramework.apk");
-		this.adb.execShell("chmod 4755 /system/app/Vending.apk");
+		this.adb.execShell("chmod 755 /system/app/*");
+		this.adb.execShell("chmod 755 /system/framework/*");
+		this.adb.execShell("chmod 644 /system/etc/permissions/com.google.android.maps.xml");
+		this.adb.execShell("chmod 755 /system/lib/libinterstitial.so");
+		
+		this.mountSystemRO();
 
-		this.adb.execShell("oureboot");
+//		this.doReboot();
 	}
 
 	public void deleteMarket() {
-		this.adb.execShell("mount -o rw,remount /dev/block/mtdblock5 /");
+		this.mountSystemRW();
 
 		this.adb.execShell("busybox rm /system/app/GoogleServicesFramework.apk");
 		this.adb.execShell("busybox rm /system/app/Vending.apk");
 
-		this.adb.execShell("oureboot");
+		this.doReboot();
 	}
 
 	public void installSU() {
-		this.adb.execShell("mount -o rw,remount /dev/block/mtdblock5 /");
+		this.mountSystemRW();
+		
+		this.adb.execShell("mkdir /system/sbin");
 
-		String[] command = { "push", "lib/root/su", "/system/bin" };
+		String[] command = { "push", "lib/root/su", "/system/sbin/" };
 		this.adb.exec(command);
 
-		this.adb.execShell("chmod 4755 /system/bin/su");
+		this.adb.execShell("chmod 4755 /system/sbin/su");
 
-		this.adb.execShell("mount -o ro,remount /dev/block/mtdblock5 /");
+		this.mountSystemRO();
 
 		this.wmain.reloadInfos();
 	}
 
 	public void deleteSU() {
-		this.adb.execShell("mount -o rw,remount /dev/block/mtdblock5 /");
+		this.mountSystemRW();
 
-		this.adb.execShell("busybox rm /system/bin/su");
+		this.adb.execShell("busybox rm /system/sbin/su");
 
-		this.adb.execShell("mount -o ro,remount /dev/block/mtdblock5 /");
+		this.mountSystemRO();
 
 		this.wmain.reloadInfos();
 	}
@@ -191,7 +201,7 @@ public class Main {
 	}
 
 	public void deleteSuperUser() {
-		String[] command = { "uninstall", "koushikdutta.superuser" };
+		String[] command = { "uninstall", "com.noshufou.android.su" };
 		this.adb.exec(command);
 
 		this.wmain.reloadInfos();
@@ -255,13 +265,13 @@ public class Main {
 		FileManager fm = new FileManager("tmp/" + filename, "UTF-8");
 		fm.write(newProp);
 
-		this.adb.execShell("mount -o rw,remount /dev/block/mtdblock5 /");
+		this.mountSystemRW();
 
 		String[] command = { "push", "tmp/" + filename, remotepath };
 		this.adb.exec(command);
 
 		this.adb.execShell("busybox chmod 0644 " + remotepath);
 
-		this.adb.execShell("mount -o ro,remount /dev/block/mtdblock5 /");
+		this.mountSystemRO();
 	}
 }
