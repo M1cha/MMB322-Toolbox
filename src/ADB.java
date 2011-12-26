@@ -44,7 +44,7 @@ public class ADB {
 	// start ADB-Daemon
 	private void startADBD() {
 		try {
-			Runtime.getRuntime().exec("lib/adb/adb.exe fork-server server");
+			Runtime.getRuntime().exec("lib/adb/"+adbFile+" fork-server server");
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "ADB konnte nicht gefunden werden!");
 			e.printStackTrace();
