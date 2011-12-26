@@ -224,7 +224,7 @@ public class Main {
 	public String[][] parseProp(String txt) {
 		String[] lines = txt.split("\n");
 
-		ArrayList dataAL = new ArrayList();
+		ArrayList<String[]> dataAL = new ArrayList<String[]>();
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i].trim();
 
